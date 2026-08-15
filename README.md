@@ -176,6 +176,51 @@ Buka `http://localhost:8080/` → login dengan:
 
 ---
 
+## 🐛 Troubleshooting: Error 500 saat Login
+
+**Penyebab paling umum**: database belum di-setup (tabel belum ada) atau password
+belum diinisialisasi. Gejalanya: muncul "Terjadi kesalahan (500)" saat klik tombol Login.
+
+**Solusi cepat (otomatis):**
+
+1. Pastikan MySQL berjalan & koneksi di `.env` benar:
+   ```ini
+   database.default.database = asset_db
+   database.default.username = root
+   database.default.password = yourpass
+   ```
+2. Buka browser ke **http://localhost:8080/setup** (sekali saja).
+   - Endpoint ini akan **otomatis import** `assets_app.sql` + sample data bila
+     tabel belum ada, lalu **set password** admin/staff ke hash valid.
+   - Halaman akan menampilkan konfirmasi "Setup Password Selesai".
+3. Kembali ke `/login`, login dengan `admin`/`admin123`.
+
+**Solusi manual (jika setup otomatis gagal):**
+
+```bash
+# 1. Buat database & import
+mysql -u root -p -e "CREATE DATABASE asset_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p asset_db < assets_app.sql
+mysql -u root -p asset_db < assets_sample_data.sql
+
+# 2. Set password (pilih salah satu)
+#    Opsi A: jalankan via browser http://localhost:8080/setup
+#    Opsi B: via CLI
+php -r "require 'vendor/autoload.php'; \$db=\Config\Database::connect();
+\$db->query('UPDATE users SET password=? WHERE username=?',[password_hash('admin123',PASSWORD_BCRYPT),'admin']);
+\$db->query('UPDATE users SET password=? WHERE username=?',[password_hash('staff123',PASSWORD_BCRYPT),'staff']);"
+```
+
+**Cek log error** bila masih bermasalah:
+```bash
+cat writable/logs/log-$(date +%Y-%m-%d).log | grep -i error
+```
+
+> ⚠️ **Setelah setup berhasil**, hapus route `setup` di `app/Config/Routes.php`
+> untuk keamanan produksi.
+
+---
+
 ## 🔐 Catatan Keamanan (Produksi)
 
 1. Set `CI_ENVIRONMENT = production` di `.env`.
