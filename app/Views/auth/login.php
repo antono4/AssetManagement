@@ -119,7 +119,22 @@
                 toast('Login berhasil! Mengalihkan...', 'success', 1500);
                 setTimeout(() => window.location.href = res.data.redirect || '<?= site_url('/dashboard') ?>', 600);
             } else {
-                toast(res.message || 'Login gagal.', 'error');
+                // Jika error database (500), arahkan user ke /setup.
+                const isDbError = res.status === 500 && (res.message || '').includes('Database belum siap');
+                if (isDbError) {
+                    toast(res.message + ' Klik di sini untuk setup otomatis.', 'error', 8000);
+                    // Tampilkan banner setup.
+                    let banner = document.getElementById('setup-banner');
+                    if (!banner) {
+                        banner = document.createElement('div');
+                        banner.id = 'setup-banner';
+                        banner.className = 'glass-soft px-4 py-3 mb-5 text-sm border border-amber-500/40 text-amber-200';
+                        banner.innerHTML = '⚠ Database belum siap. <a href="<?= site_url('/setup') ?>" class="text-amber-300 underline font-medium">Jalankan setup otomatis →</a>';
+                        document.querySelector('main .glass').prepend(banner);
+                    }
+                } else {
+                    toast(res.message || 'Login gagal.', 'error');
+                }
             }
         });
     </script>
