@@ -1,1 +1,31 @@
-Last updated: 2026-09-08 04:15:57 WIB
+# AssetManagement
+
+
+
+## 📋 Overview
+
+This repository contains **86 files** and is built with the following technologies:
+
+PHP
+
+## 🚀 Quick Start
+
+```bash
+php -S localhost:8000
+```
+
+## ✨ Features
+
+- 🔧 Environment config included
+- 📝 Auto-generated documentation
+
+## 🛠️ Technologies
+
+PHP
+
+## 📄 License
+
+MIT License
+
+---
+*Last updated: 2026-09-08 04:16:31 WIB*
